@@ -2,14 +2,14 @@ import React, {useState, useEffect, useRef} from 'react';
 import './App.css';
 
 function App() {
-  const refInput = useRef();
+  const refInput : {current} = useRef();
   useEffect(() => {
 
     refInput.current.webkitdirectory = true;
     refInput.current.directory = true;
     refInput.current.multiple = true;
 
-    
+
     },[])
 
 const [rootFolder, setRootFolder] = useState('');
