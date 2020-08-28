@@ -1,42 +1,57 @@
 import React, {useState, useEffect, useRef} from 'react';
+import fs from 'browserify-fs';
+import { makeStyles } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import './App.css';
-
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '80%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
 function App() {
+  const classes = useStyles();
   const refInput : {current} = useRef();
   useEffect(() => {
-
     refInput.current.webkitdirectory = true;
     refInput.current.directory = true;
     refInput.current.multiple = true;
-
-
     },[])
 
 const [rootFolder, setRootFolder] = useState('');
-const [rootFolderFoldersNumber, setRootFolderNumberFolders] = useState('');
+const [rootFolderFoldersNumber, setRootFolderNumberFolders] = useState(0);
 const [rootFolderFilesNumber, setRootFolderFilesNumber] = useState(0);
-
+const [isLoading, setIsLoading] = useState(false);
 const selectedFolder =(rootFolderFiles)=>{
+  setIsLoading(true);
   const rootFolder = rootFolderFiles[0].webkitRelativePath.split('/')[0];
   setRootFolder(rootFolder);
   setRootFolderFilesNumber(rootFolderFiles.length)
-  console.log("root folder: ", rootFolder)
-/*   console.log("rootFolderFiles: ",
-  rootFolderFiles[0].webkitRelativePath, "n files: ", rootFolderFiles.length ) */
-
 /* mapeando carpetas */
 const foldersFiltered = [...rootFolderFiles].filter((file, index)=>{
   const pastIndex = index -1
   const folderName = file.webkitRelativePath.split('/')[1]
   const pastFolderName = rootFolderFiles[index === 0 ? 0: pastIndex].webkitRelativePath.split('/')[1]
- if (folderName !== pastFolderName ){
-   console.log("folder", file)
-  return {folderDir: file.webkitRelativePath, folderName, files:file.files }
- }
+  if (folderName !== pastFolderName ){
+  return ({folderName});
+ } 
  return null
 })
+setRootFolderNumberFolders(foldersFiltered.length)
+setIsLoading(false);
+console.log("folders filtered",  foldersFiltered)
 
-console.log("folders filtered",  foldersFiltered.length)
+/* se crean archivos de imagenes con nombre de cada carpeta */
+fs.mkdir('/home', function() {
+	fs.writeFile('/home/hello-world.txt', 'Hello world!\n', function() {
+		fs.readFile('/home/hello-world.txt', 'utf-8', function(err, data) {
+			console.log("ok: ", data);
+		});
+	});
+});
+
  return foldersFiltered
 
 }
@@ -59,10 +74,25 @@ Seleccione la carpeta raiz donde se contienen las carpetas con los archivos foto
          <br></br>
          Numero de archivos en carpeta raiz: {rootFolderFilesNumber}
         </p>):null}
+
+
+ {isLoading?(<div className={classes.root}>
+      <LinearProgress />
+    </div>): null}
+<div>
         <input ref={refInput}
         multiple
-         onChange={(e)=> selectedFolder(e.target.files) }
+         onChange={(e)=>{ selectedFolder(e.target.files) }}
           type='file' />
+          </div>
+
+{/*          
+          <ol type="A">
+  <li>Julio</li>
+  <li>Carmen</li>
+  <li>Ignacio</li>
+  <li>Elena</li>
+</ol> */}
       </header>
     </div>
   );
