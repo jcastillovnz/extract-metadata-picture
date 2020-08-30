@@ -203,9 +203,11 @@ Seleccione la carpeta raiz donde se contienen las carpetas con los archivos foto
           type={foldersFiles?'hidden':'file'} />
           </div>
 
-
-          
+          <div style={{position: 'fixed',marginBottom:'-40%', fontSize: 14 }}>
+      <a href="https://github.com/jcastillovnz"> by @jcastillovnz  </a>
+       </div>  
       </header>
+
     </div>
   );
 }
