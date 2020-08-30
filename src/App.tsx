@@ -202,7 +202,12 @@ Seleccione la carpeta raiz donde se contienen las carpetas con los archivos foto
           selectedFolder(e.target.files) }}
           type={foldersFiles?'hidden':'file'} />
           </div>
+
+          <div style={{position: 'fixed', bottom:'10px', fontSize: 14 }}>
+      <a href="https://github.com/jcastillovnz"> by @jcastillovnz  </a>
+       </div>  
       </header>
+
     </div>
   );
 }
