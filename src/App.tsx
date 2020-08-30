@@ -204,7 +204,7 @@ Seleccione la carpeta raiz donde se contienen las carpetas con los archivos foto
           </div>
 
 
-          by @jcastillovnz
+          
       </header>
     </div>
   );
