@@ -3,6 +3,10 @@ import React, {useState, useEffect, useRef} from 'react';
 import * as ExifReader from 'exifreader';
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import XLSX from 'xlsx';
+import { saveAs } from 'file-saver'
+
+import { ExcelExport }  from '@progress/kendo-react-excel-export';
 import './App.css';
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +30,8 @@ function App() {
     },[])
 
 
-let listFiles =  [];
+
+
 const [rootFolder, setRootFolder] = useState('');
 const [rootFolderFoldersNumber, setRootFolderNumberFolders] = useState(0);
 const [rootFolderFilesNumber, setRootFolderFilesNumber] = useState(0);
@@ -41,10 +46,36 @@ console.log("listFiles useEffect: ", metadataFiles.length -1,
 if ( metadataFiles.length -1 ===  rootFolderFoldersNumber) {
 
   console.log("completed :", metadataFiles)
+  var wb = XLSX.utils.book_new();
+  wb.Props = {
+    Title:`${rootFolder}-metadatos.xlsx`,
+    Subject: "Test",
+    Author: "Red Stapler",
+    CreatedDate: new Date(2017,12,19)
+};
+wb.SheetNames.push(`${rootFolder}-metadatos`);
+const filesToArray = metadataFiles.map((file)=>([file.fileName,
+   file.folderName,
+    file.dateTime,file.latitude,file.longitude]));
+console.log("filesToArray: ", filesToArray)
+var ws_data = [['File name' ,'Folder name', 'date time', 'Latitude', 'Longitude'],
+...filesToArray];  //a row with 2 columns
+var ws = XLSX.utils.aoa_to_sheet(ws_data);
+wb.Sheets[`${rootFolder}-metadatos`] = ws;
+
+var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+function s2ab(s) { 
+  var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+  var view = new Uint8Array(buf);  //create uint8array as viewer
+  for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+  return buf;    
+}
+saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), `${rootFolder}-metadatos.xlsx`);
+
 }
 
 
-  }, [listFiles, metadataFiles, metadataFiles.length, rootFolderFoldersNumber])
+  }, [metadataFiles, metadataFiles.length, rootFolder, rootFolderFoldersNumber])
 
 
 
@@ -85,10 +116,9 @@ const data = {
   folderName,
   name: file.name}
  return data;
-
 }
 
-
+let listFiles =  [];
 const extractMetadataFile = (file, index)=>{
   const reader = new FileReader();
   reader.onload = function (readerEvent:{target: {result:any}}) {
@@ -132,6 +162,7 @@ const saveFilesImages = async()=> {
 
   return (
     <div className="App">
+    
       <header className="App-header">
         <p>
           Extraer metadata de carpetas
