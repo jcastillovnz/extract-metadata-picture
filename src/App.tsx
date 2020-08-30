@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 
 import * as ExifReader from 'exifreader';
 import { makeStyles } from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Loader from './components/Loader'
 import XLSX from 'xlsx';
 import { saveAs } from 'file-saver'
 
@@ -30,18 +30,21 @@ function App() {
     },[])
 
 
-
-
 const [rootFolder, setRootFolder] = useState('');
 const [rootFolderFoldersNumber, setRootFolderNumberFolders] = useState(0);
 const [rootFolderFilesNumber, setRootFolderFilesNumber] = useState(0);
 const [isLoading, setIsLoading] = useState(false);
 const [foldersFiles, setFoldersFile] = useState(null);
 const [metadataFiles, setMetadataFiles] = useState([]);
+const [progressLoader, setPogressLoader] = useState(0)
+
 
 useEffect(()=> {
-console.log("listFiles useEffect: ", metadataFiles.length -1,
- "rootFolderFilesNumber: ",rootFolderFoldersNumber)
+  let multiple = (metadataFiles.length===0? 1:metadataFiles.length   * 100);
+  let percentajeLoader = (metadataFiles.length===0? 1:metadataFiles.length   * 100)  / rootFolderFoldersNumber;
+setPogressLoader(percentajeLoader)
+  console.log( "%: ", Math.round( percentajeLoader),"listFiles useEffect: ", metadataFiles.length -1,
+ "rootFolderFilesNumber: ",rootFolderFoldersNumber )
 
 if ( metadataFiles.length -1 ===  rootFolderFoldersNumber) {
 
@@ -71,7 +74,7 @@ function s2ab(s) {
   return buf;    
 }
 saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), `${rootFolder}-metadatos.xlsx`);
-
+setIsLoading(false);
 }
 
 
@@ -120,6 +123,7 @@ const data = {
 
 let listFiles =  [];
 const extractMetadataFile = (file, index)=>{
+  setIsLoading(true);
   const reader = new FileReader();
   reader.onload = function (readerEvent:{target: {result:any}}) {
     try {
@@ -139,6 +143,7 @@ const extractMetadataFile = (file, index)=>{
   //console.log("metadata file: ", listFiles)
   listFiles.push(folderImageData)
   setMetadataFiles( [...listFiles, folderImageData])
+
 return folderImageData;
 
 
@@ -181,13 +186,13 @@ Seleccione la carpeta raiz donde se contienen las carpetas con los archivos foto
 
 
  {isLoading?(<div className={classes.root}>
-      <LinearProgress />
+  <Loader value={progressLoader} />
     </div>): null}
 
     {foldersFiles? ( <div>
-      <p  style={{fontSize:15, color:'green'}}>Se guardara un archivo de imagen por cada una de las {' '}
+      <p  style={{fontSize:15, color:'green'}}>Se creara un registro de metadatos basado en un archivo de imagen correspondiente en cada carpeta de {' '}
          {rootFolderFoldersNumber} carpetas</p>
-<button onClick={()=>saveFilesImages()} >Guardar archivos</button>
+<button onClick={()=>saveFilesImages()} >GENERAR ARCHIVO EXCELL</button>
 </div>) : null
 
          }<div>
