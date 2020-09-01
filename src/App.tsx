@@ -148,6 +148,7 @@ return folderImageData;
 
 
   } catch (error) {
+   return alert(` Opps hubo un error con el archivo ${file.name} no es un archivo jpg valido` )
       console.log("error: ", error, "file: ", file);
       //alert("Hubo error, intente mas tarde")
         // Handle error.
